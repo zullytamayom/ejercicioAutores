@@ -1,0 +1,28 @@
+info:
+  name: Actualizar autor
+  type: http
+  seq: 3
+
+http:
+  method: PUT
+  url: http://localhost:8081/api/v1/authors/1
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "firstName": "Gabriel",
+        "lastName": "Garcia Marquez",
+        "email": "gabriel@editorial.com",
+        "nationality": "Colombian"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
