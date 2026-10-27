@@ -76,6 +76,15 @@ public class AuthorController {
         return ResponseEntity.ok(authorService.findByEmail(email));
     }
 
+    @GetMapping("/nationality/{nationality}")
+    @Operation(summary = "Find active authors by nationality")
+    @ApiResponse(responseCode = "200", description = "Authors returned")
+    public ResponseEntity<List<AuthorResponseDTO>> getAuthorsByNationality(
+            @PathVariable String nationality
+    ) {
+        return ResponseEntity.ok(authorService.findByNationality(nationality));
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Update an author")
     @ApiResponse(responseCode = "200", description = "Author updated")

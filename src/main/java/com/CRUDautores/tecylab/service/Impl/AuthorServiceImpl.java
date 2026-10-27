@@ -82,6 +82,7 @@ public class AuthorServiceImpl implements AuthorService {
     public List<AuthorResponseDTO> findByNationality(String nationality) {
         return authorRepository.findByNationality(nationality)
                 .stream()
+                .filter(author -> author.getAuthorStatus() == Status.ACTIVE)
                 .map(authorMapper::toResponseDTO)
                 .toList();
     }
