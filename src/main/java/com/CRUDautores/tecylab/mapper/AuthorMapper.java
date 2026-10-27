@@ -12,6 +12,7 @@ public interface AuthorMapper {
     @Mapping(target = "id", ignore = true)
     Author toEntity(AuthorRequestDTO requestDTO);
 
+    @Mapping(target = "status", source = "authorStatus")
     AuthorResponseDTO toResponseDTO(Author entity);
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDTO(AuthorRequestDTO dto, @MappingTarget Author author);

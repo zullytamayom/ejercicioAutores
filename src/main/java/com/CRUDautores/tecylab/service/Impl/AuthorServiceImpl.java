@@ -3,6 +3,7 @@ package com.CRUDautores.tecylab.service.Impl;
 import com.CRUDautores.tecylab.DTO.AuthorRequestDTO;
 import com.CRUDautores.tecylab.DTO.AuthorResponseDTO;
 import com.CRUDautores.tecylab.entity.Author;
+import com.CRUDautores.tecylab.entity.Status;
 import com.CRUDautores.tecylab.exception.DuplicateEmailException;
 import com.CRUDautores.tecylab.mapper.AuthorMapper;
 import com.CRUDautores.tecylab.repository.AuthorRepository;
@@ -31,12 +32,14 @@ public class AuthorServiceImpl implements AuthorService {
 
         Author nuevoAuthor = authorMapper.toEntity(authorRequestDTO);
         nuevoAuthor.setEmail(email);
+        nuevoAuthor.setAuthorStatus(Status.ACTIVE);
         return authorMapper.toResponseDTO(authorRepository.save(nuevoAuthor));
     }
 
     @Override
     public AuthorResponseDTO updateAuthor(Long id, AuthorRequestDTO authorRequestDTO) {
         Author author = authorRepository.findById(id)
+                .filter(existingAuthor -> existingAuthor.getAuthorStatus() == Status.ACTIVE)
                 .orElseThrow(() -> new EntityNotFoundException("Author with id " + id + " not found"));
 
         String email = normalizeEmail(authorRequestDTO.email());
@@ -53,6 +56,7 @@ public class AuthorServiceImpl implements AuthorService {
     public List<AuthorResponseDTO> findAll() {
         return authorRepository.findAll()
                 .stream()
+                .filter(author -> author.getAuthorStatus() == Status.ACTIVE)
                 .map(authorMapper::toResponseDTO)
                 .toList();
     }
@@ -60,6 +64,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public AuthorResponseDTO findById(Long id) {
         Author author = authorRepository.findById(id)
+                .filter(existingAuthor -> existingAuthor.getAuthorStatus() == Status.ACTIVE)
                 .orElseThrow(() -> new EntityNotFoundException("Author with id " + id + " not found"));
         return authorMapper.toResponseDTO(author);
     }
@@ -67,6 +72,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public AuthorResponseDTO findByEmail(String email) {
         Author author = authorRepository.findByEmailIgnoreCase(email)
+                .filter(existingAuthor -> existingAuthor.getAuthorStatus() == Status.ACTIVE)
                 .orElseThrow(() -> new EntityNotFoundException("Author with email " + email + " not found"));
         return authorMapper.toResponseDTO(author);
 
@@ -82,10 +88,11 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void deleteAuthor(Long id) {
-        if (!authorRepository.existsById(id)) {
-            throw new EntityNotFoundException("Author with id " + id + " not found");
-        }
-        authorRepository.deleteById(id);
+        Author author = authorRepository.findById(id)
+                .filter(existingAuthor -> existingAuthor.getAuthorStatus() == Status.ACTIVE)
+                .orElseThrow(() -> new EntityNotFoundException("Author with id " + id + " not found"));
+        author.setAuthorStatus(Status.INACTIVE);
+        authorRepository.save(author);
     }
 
     private String normalizeEmail(String email) {
